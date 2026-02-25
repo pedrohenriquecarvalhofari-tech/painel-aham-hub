@@ -1,45 +1,64 @@
--- AHAM HUB ADM SISTEMA
+-- AHAM HUB ADM WHITELIST
 
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
--- ======================
--- SISTEMA ADM
--- ======================
+-- =========================
+-- WHITELIST
+-- =========================
 
-_G.AhamHubUsers = _G.AhamHubUsers or {}
+local whitelist = {
 
-_G.AhamHubUsers[LP.Name] = true
+["ajudo_pessoas21"] = true,
+["ninja_branco02"] = true
 
-function isAdmin(player)
+}
 
-return _G.AhamHubUsers[player.Name] == true
+local dono = "ajudo_pessoas21"
+
+function isWhitelisted(player)
+
+return whitelist[player.Name] == true
 
 end
 
--- ======================
+-- se não tiver whitelist não roda
+
+if not isWhitelisted(LP) then
+
+return
+
+end
+
+-- =========================
 -- CHAT
--- ======================
+-- =========================
 
 local mensagem = "Painel ADM do Aham Hub executado com sucesso"
 
 pcall(function()
+
 game:GetService("TextChatService")
-.TextChannels.RBXGeneral:SendAsync(mensagem)
+.TextChannels.RBXGeneral
+:SendAsync(mensagem)
+
 end)
 
 print(mensagem)
 
--- ======================
+-- =========================
 -- TAG
--- ======================
+-- =========================
 
-function criarTag(player)
+function criarTag()
 
-if player.Character and player.Character:FindFirstChild("Head") then
+local char = LP.Character or LP.CharacterAdded:Wait()
+
+local head = char:WaitForChild("Head")
 
 local tag = Instance.new("BillboardGui")
-tag.Parent = player.Character.Head
+tag.Parent = head
+
 tag.Size = UDim2.new(0,200,0,50)
 tag.StudsOffset = Vector3.new(0,2,0)
 tag.AlwaysOnTop = true
@@ -50,7 +69,7 @@ text.Size = UDim2.new(1,0,1,0)
 text.BackgroundTransparency = 1
 text.TextScaled = true
 
-if player.Name == "ajudo_pessoas21" then
+if LP.Name == dono then
 
 text.Text = "DONO DO AHAM HUB"
 text.TextColor3 = Color3.fromRGB(255,200,0)
@@ -64,18 +83,19 @@ end
 
 end
 
-end
-
-criarTag(LP)
+criarTag()
 
 LP.CharacterAdded:Connect(function()
+
 wait(1)
-criarTag(LP)
+
+criarTag()
+
 end)
 
--- ======================
+-- =========================
 -- FUNÇÕES
--- ======================
+-- =========================
 
 local targetPlayer = nil
 local loopkill = false
@@ -92,15 +112,13 @@ end
 
 end
 
--- ======================
+-- =========================
 -- COMANDOS
--- ======================
+-- =========================
 
 LP.Chatted:Connect(function(msg)
 
 local args = msg:split(" ")
-
-if not isAdmin(LP) then return end
 
 -- KILL
 
@@ -108,7 +126,7 @@ if args[1] == ";kill" then
 
 targetPlayer = getPlayer(args[2])
 
-if targetPlayer and isAdmin(targetPlayer) then
+if targetPlayer then
 targetPlayer.Character:BreakJoints()
 end
 
@@ -119,14 +137,11 @@ end
 if args[1] == ";loopkill" then
 
 targetPlayer = getPlayer(args[2])
-
-if targetPlayer and isAdmin(targetPlayer) then
 loopkill = true
-end
 
 end
 
--- UNLOOP
+-- UNLOOPKILL
 
 if args[1] == ";unloopkill" then
 
@@ -140,7 +155,7 @@ if args[1] == ";kick" then
 
 targetPlayer = getPlayer(args[2])
 
-if targetPlayer and isAdmin(targetPlayer) then
+if targetPlayer then
 
 targetPlayer:Kick("Você foi banido pela equipe Aham Hub")
 
@@ -155,6 +170,7 @@ end)
 task.spawn(function()
 
 while true do
+
 task.wait(1)
 
 if loopkill and targetPlayer then
@@ -169,9 +185,9 @@ end
 
 end)
 
--- ======================
+-- =========================
 -- GUI
--- ======================
+-- =========================
 
 local gui = Instance.new("ScreenGui")
 gui.Parent = game.CoreGui
@@ -191,12 +207,19 @@ Instance.new("UICorner",frame)
 -- RGB
 
 task.spawn(function()
+
 while true do
+
 for i=0,1,0.01 do
+
 frame.BorderColor3 = Color3.fromHSV(i,1,1)
+
 task.wait()
+
 end
+
 end
+
 end)
 
 -- TITULO
